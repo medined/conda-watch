@@ -24,7 +24,7 @@ sudo cp conda-watch.py /usr/local/bin
 - Now setup the DEBUG trap which runs the conda-watch script after every shell command.
 
 ```bash
-trap './conda-watch.py ${BASH_COMMAND}' DEBUG
+trap 'conda-watch.py ${BASH_COMMAND}' DEBUG
 ```
 
 Now the script is watching for "conda install", "conda remove", and "conda update" 
