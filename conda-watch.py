@@ -73,7 +73,11 @@ class CondaWatch:
         p = URIRef("cw:hasHash")
         triples = list(self.graph.triples((None, p, None)))
         sorted_triples = sorted(triples, key=lambda triple: str(triple[0]), reverse=True)
-        previous_datestamp_uri, _, previous_md5_hash = sorted_triples[0]
+        if sorted_triples:
+            previous_datestamp_uri, _, previous_md5_hash = sorted_triples[0]
+        else:
+            previous_datestamp_uri = None
+            previous_md5_hash = None
 
         #
         # Add the command for a command history.
@@ -101,7 +105,7 @@ class CondaWatch:
         #
         # If the environment has not changed, then set a flag to indicate that.
         #
-        if previous_md5_hash == md5_hash:
+        if previous_md5_hash is not None and previous_md5_hash == md5_hash:
             s = self.datestamp_uri
             p = URIRef("cw:same_as_previous")
             o = Literal(previous_datestamp_uri)
