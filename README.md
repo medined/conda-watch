@@ -21,7 +21,7 @@ it for security issues. Never trust code from the internet!
 sudo cp conda-watch.py /usr/local/bin
 ```
 
-- Now setup the DEBUG trap which runs the conda-watch script after every shell command.
+- Now setup the DEBUG trap which runs the conda-watch script after every shell command. Running "trap - DEBUG" removes this trap.
 
 ```bash
 trap 'conda-watch.py ${BASH_COMMAND}' DEBUG
@@ -29,6 +29,20 @@ trap 'conda-watch.py ${BASH_COMMAND}' DEBUG
 
 Now the script is watching for "conda install", "conda remove", and "conda update" 
 commands.
+
+## Experimentation
+
+If you want to experiment with changing the script, then install it into a single directory.
+
+- Add the conda-watch.py script to your python project directory.
+- Add the current directory to your path.
+```bash
+export PATH=.:$PATH
+```
+- Set the DEBUG trap.
+```bash
+trap 'conda-watch.py ${BASH_COMMAND}' DEBUG
+```
 
 ## Usage
 
