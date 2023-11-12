@@ -21,14 +21,15 @@ class CondaWatch:
     #
     # This init requires no packages to be installed.
     #
-    def __init__(self, data_file="conda-watch.hidden.ttl", dot_file='conda-watch.hidden.dot'):
+    def __init__(self, data_file=None):
         self.data_file = data_file
-        self.dot_file = dot_file
         self.env_name = os.getenv('CONDA_DEFAULT_ENV')
         self.env_path = os.getenv('CONDA_PREFIX')
         self.datestamp = str(datetime.datetime.now().replace(microsecond=0))
         self.changes_made = False
         self.graph = None
+        if self.data_file is None:
+            self.data_file = f"conda-watch.{self.env_name}.hidden.ttl"
 
     def is_conda_env_active(self):
         return self.env_name is not None
@@ -58,7 +59,7 @@ class CondaWatch:
             return
 
         self.graph = Graph()
-        if os.access(self.data_file, os.F_OK):
+        if os.access(self.data_file, os.F_OK): # type: ignore
             self.graph.parse(self.data_file, format="turtle")
         else:
             self.graph.bind("cw", Namespace("http://conda-watch/#"))
@@ -70,7 +71,7 @@ class CondaWatch:
         data = []
 
         # Find the previous datestamp.
-        p = URIRef("cw:hasHash")
+        p = URIRef("cw:has_hash")
         triples = list(self.graph.triples((None, p, None)))
         sorted_triples = sorted(triples, key=lambda triple: str(triple[0]), reverse=True)
         if sorted_triples:
@@ -95,22 +96,24 @@ class CondaWatch:
         md5_hash = hashlib.md5(str(packages).encode('utf-8')).hexdigest()
 
         #
-        # Store the md5 hash so future runs can compare to it.
-        #
-        s = self.datestamp_uri
-        p = URIRef("cw:has_hash")
-        o = Literal(md5_hash)
-        self.add_singleton_to_graph(s, p, o)
-
-        #
         # If the environment has not changed, then set a flag to indicate that.
+        # Note that the previous datestamp is not the last run but the last
+        # run that changed the environment.
         #
-        if previous_md5_hash is not None and previous_md5_hash == md5_hash:
+        if previous_md5_hash is not None and str(previous_md5_hash) == md5_hash:
             s = self.datestamp_uri
             p = URIRef("cw:same_as_previous")
             o = Literal(previous_datestamp_uri)
             self.add_singleton_to_graph(s, p, o)     
         else:
+            #
+            # Store the md5 hash so future runs can compare to it.
+            #
+            s = self.datestamp_uri
+            p = URIRef("cw:has_hash")
+            o = Literal(md5_hash)
+            self.add_singleton_to_graph(s, p, o)
+
             for package_name, package_version in packages.items():
                 s = self.datestamp_uri
                 p = URIRef("cw:has_package")

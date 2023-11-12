@@ -30,6 +30,12 @@ trap 'conda-watch.py ${BASH_COMMAND}' DEBUG
 Now the script is watching for "conda install", "conda remove", and "conda update" 
 commands.
 
+To get a TTL created without installing anything, run a conda command guaranteed not to do anything:
+
+```
+conda remove zxcv
+```
+
 ## Experimentation
 
 If you want to experiment with changing the script, then install it into a single directory.
