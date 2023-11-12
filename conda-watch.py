@@ -21,8 +21,9 @@ class CondaWatch:
     #
     # This init requires no packages to be installed.
     #
-    def __init__(self, data_file="conda-watch.hidden.ttl"):
+    def __init__(self, data_file="conda-watch.hidden.ttl", dot_file='conda-watch.hidden.dot'):
         self.data_file = data_file
+        self.dot_file = dot_file
         self.env_name = os.getenv('CONDA_DEFAULT_ENV')
         self.env_path = os.getenv('CONDA_PREFIX')
         self.datestamp = str(datetime.datetime.now().replace(microsecond=0))
@@ -177,7 +178,7 @@ complete_command = ' '.join(sys.argv[1:])
 #
 # No need to do anything if the command is not a conda command.
 #
-if 'conda' not in complete_command:
+if not (complete_command.startswith('conda') or complete_command.startswith('./conda')):
     sys.exit(0)
 
 #
